@@ -20,17 +20,13 @@ const STATUS_STYLES: Record<ArticleStatus, { bg: string; color: string }> = {
   ARCHIVED:  { bg: '#f5f5f7', color: '#666666' },
 }
 
-// SUPPORT é mantido para compat com o enum Prisma legado, mas não renderiza
-// nenhum artigo (todos foram excluídos do banco).
 const TYPE_LABELS: Record<ArticleType, string> = {
   TEXT: 'Texto',
-  SUPPORT: 'Texto',
   VIDEO: 'Vídeo',
 }
 
 const TYPE_CLASS: Record<ArticleType, string> = {
   TEXT: 'tc-typeBadge tc-typeBadge--text',
-  SUPPORT: 'tc-typeBadge tc-typeBadge--text',
   VIDEO: 'tc-typeBadge tc-typeBadge--video',
 }
 
