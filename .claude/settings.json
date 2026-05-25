@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(robocopy 'C:\\\\Users\\\\agenc\\\\meusprojetos\\\\turbohelp' 'C:\\\\Users\\\\agenc\\\\meusprojetos\\\\rbcont\\\\turbohelp' /E /XD node_modules .git .next dist build .cache /XF tsconfig.tsbuildinfo /NFL /NDL /NJH /NP; \"ExitCode=$LASTEXITCODE\")",
+      "PowerShell(robocopy 'C:\\\\Users\\\\agenc\\\\meusprojetos\\\\rbcont\\\\turbohelp' 'C:\\\\Users\\\\agenc\\\\meusprojetos\\\\rbcont' /E /MOVE /IS /NFL /NDL /NJH /NP; \"ExitCode=$LASTEXITCODE\")",
+      "PowerShell(Get-Command pg_dump -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command psql -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command supabase -ErrorAction SilentlyContinue)",
+      "PowerShell(Write-Output '--- docker ---'; \\(Get-Command docker -ErrorAction SilentlyContinue\\) | Select-Object Source; Write-Output '--- winget ---'; \\(Get-Command winget -ErrorAction SilentlyContinue\\) | Select-Object Source; Write-Output '--- choco ---'; \\(Get-Command choco -ErrorAction SilentlyContinue\\) | Select-Object Source; Write-Output '--- scoop ---'; \\(Get-Command scoop -ErrorAction SilentlyContinue\\) | Select-Object Source; Write-Output '--- existing pg_dump anywhere ---'; Get-ChildItem -Path 'C:\\\\Program Files\\\\PostgreSQL' -Filter pg_dump.exe -Recurse -ErrorAction SilentlyContinue | Select-Object FullName)",
+      "PowerShell($tools = @\\('docker','winget','choco','scoop','pg_dump'\\); foreach \\($t in $tools\\) { $cmd = Get-Command $t -ErrorAction SilentlyContinue; if \\($cmd\\) { Write-Output \"$t : FOUND at $\\($cmd.Source\\)\" } else { Write-Output \"$t : not found\" } }; Write-Output '--- search PostgreSQL install dirs ---'; @\\('C:\\\\Program Files\\\\PostgreSQL', 'C:\\\\Program Files \\(x86\\)\\\\PostgreSQL'\\) | ForEach-Object { if \\(Test-Path $_\\) { Get-ChildItem $_ -Filter pg_dump.exe -Recurse -ErrorAction SilentlyContinue | Select-Object FullName } })",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell($env:DATABASE_URL = 'postgresql://postgres:WJCxrGfK8%3FMd%40K%2A@db.jiaiwdybyyrprfhczjyu.supabase.co:5432/postgres'; $env:DIRECT_URL = $env:DATABASE_URL; npx prisma migrate deploy 2>&1)",
+      "PowerShell($env:OLD_DATABASE_URL = 'postgresql://postgres:Turb0H3lp19737475@db.dmaebpydjoolprewyogc.supabase.co:5432/postgres'; $env:NEW_DATABASE_URL = 'postgresql://postgres:WJCxrGfK8%3FMd%40K%2A@db.jiaiwdybyyrprfhczjyu.supabase.co:5432/postgres'; node scripts\\\\copy-db.mjs 2>&1)",
+      "PowerShell($env:DATABASE_URL = 'postgresql://postgres:WJCxrGfK8%3FMd%40K%2A@db.jiaiwdybyyrprfhczjyu.supabase.co:5432/postgres'; $env:DIRECT_URL = $env:DATABASE_URL; npx prisma db push --skip-generate --accept-data-loss 2>&1)",
+      "PowerShell(npx prisma migrate status 2>&1)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5029 -ErrorAction SilentlyContinue | Select-Object LocalPort, State, OwningProcess; if \\(-not \\(Get-NetTCPConnection -LocalPort 5029 -ErrorAction SilentlyContinue\\)\\) { Write-Output 'Port 5029 is FREE' })",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri 'http://localhost:5029' -UseBasicParsing -TimeoutSec 30; Write-Output \\('HTTP ' + $r.StatusCode + ' - ' + $r.Content.Length + ' bytes'\\); Write-Output '--- first 400 chars ---'; $r.Content.Substring\\(0, [Math]::Min\\(400, $r.Content.Length\\)\\) } catch { Write-Output \\('ERROR: ' + $_.Exception.Message\\) })",
+      "PowerShell(Start-Process 'c:\\\\tmp\\\\rbcont-paletas.html')",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri 'http://localhost:5029/login' -UseBasicParsing -TimeoutSec 30; Write-Output \\('HTTP ' + $r.StatusCode + ' - ' + $r.Content.Length + ' bytes'\\); $hasRBCont = $r.Content -match 'RBCont'; $hasTurbo = $r.Content -match 'Turbo'; Write-Output \\('contains RBCont? ' + $hasRBCont\\); Write-Output \\('contains Turbo? ' + $hasTurbo\\) } catch { Write-Output \\('ERROR: ' + $_.Exception.Message\\) })",
+      "PowerShell(Start-Process 'http://localhost:5029/login')",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri 'http://localhost:5029/login' -UseBasicParsing -TimeoutSec 30; Write-Output \\('HTTP ' + $r.StatusCode\\); $c = $r.Content; $banned = @\\('time interno','corporativo','uso interno','Acesso restrito','time de suporte L1'\\) ; foreach \\($t in $banned\\) { if \\($c -match $t\\) { Write-Output \\('STILL PRESENT: ' + $t\\) } }; Write-Output 'Done.' } catch { Write-Output \\('ERROR: ' + $_.Exception.Message\\) })",
+      "Bash(node -e ' *)",
+      "PowerShell(Start-Process 'http://localhost:5029/admin/artigos/novo')",
+      "PowerShell(Start-Process 'http://localhost:5029/admin/artigos')",
+      "PowerShell($env:DATABASE_URL = 'postgresql://postgres:WJCxrGfK8%3FMd%40K%2A@db.jiaiwdybyyrprfhczjyu.supabase.co:5432/postgres'; $env:DIRECT_URL = $env:DATABASE_URL; npx prisma migrate diff --from-url $env:DATABASE_URL --to-schema-datamodel ./prisma/schema.prisma --script 2>&1)",
+      "PowerShell(npx prisma generate 2>&1)",
+      "PowerShell(tail -10)",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime, @{N='CmdLine';E={\\(Get-CimInstance Win32_Process -Filter \"ProcessId = $\\($_.Id\\)\"\\).CommandLine}} | Format-Table -Wrap)",
+      "PowerShell(Stop-Process -Id 5800,26740,32224 -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1; Get-Process node -ErrorAction SilentlyContinue | Where-Object { $_.Id -in 5800,26740,32224 } | ForEach-Object { Write-Output \\('STILL ALIVE: ' + $_.Id\\) }; Write-Output 'cleanup done')",
+      "Bash(break)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri 'http://localhost:5029/login' -UseBasicParsing -TimeoutSec 30; Write-Output \\('HTTP ' + $r.StatusCode + ' - ' + $r.Content.Length + ' bytes - rebrand intact: ' + \\($r.Content -match 'RBCont'\\)\\) } catch { Write-Output \\('ERROR: ' + $_.Exception.Message\\) })",
+      "Bash(mkdir -p \"c:/Users/agenc/meusprojetos/rbcont/scripts\")",
+      "Bash(npx tsx *)",
+      "Bash(git init *)",
+      "Bash(git config *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\agenc\\meusprojetos\\rbcont\\scripts"
+    ]
+  }
+}

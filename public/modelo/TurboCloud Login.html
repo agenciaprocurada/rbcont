@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Entrar — TurboCloud Ajuda Interna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f9;
+    --surface: #ffffff;
+    --border: #e8e3ed;
+    --border-strong: #d8d1df;
+    --ink: #1a0f24;
+    --ink-2: #4a3d56;
+    --ink-3: #7a6b87;
+    --ink-4: #a59cae;
+    --purple-50: #f5eff8;
+    --purple-100: #eadcf1;
+    --purple-500: #6b2d8a;
+    --purple-600: #56206f;
+    --purple-700: #421858;
+    --purple-800: #2e0f3f;
+    --purple-900: #1e0a2c;
+    --lime: #c9f25e;
+    --lime-2: #b8e64a;
+    --lime-dark: #6e8a1a;
+    --lime-bg: #f0fad4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  a { color: inherit; text-decoration: none; }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    min-height: 100vh;
+  }
+
+  /* LEFT PANEL — brand */
+  .brand-panel {
+    background:
+      radial-gradient(circle at 80% 10%, rgba(201,242,94,0.18) 0%, transparent 45%),
+      radial-gradient(circle at 10% 90%, rgba(107,45,138,0.55) 0%, transparent 50%),
+      linear-gradient(135deg, var(--purple-900) 0%, var(--purple-700) 100%);
+    color: #fff;
+    padding: 40px 56px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .brand-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .brand-mark {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--lime);
+    color: var(--purple-900);
+    display: grid; place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800; font-size: 18px;
+  }
+  .brand-text { font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+  .brand-sub {
+    font-size: 10.5px; color: #b69dc4;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    font-weight: 600; margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .brand-body {
+    margin-top: auto;
+    margin-bottom: auto;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+  .brand-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(201,242,94,0.08);
+    color: var(--lime);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    border: 1px solid rgba(201,242,94,0.18);
+    margin-bottom: 22px;
+  }
+  .brand-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 6px; background: var(--lime);
+    box-shadow: 0 0 0 4px rgba(201,242,94,0.18);
+  }
+  .brand-title {
+    font-size: 42px; font-weight: 800; letter-spacing: -0.025em;
+    line-height: 1.1; margin: 0; margin-bottom: 18px;
+  }
+  .brand-title .accent { color: var(--lime); }
+  .brand-desc {
+    font-size: 15px; color: #cdb6dc;
+    line-height: 1.6; max-width: 420px;
+    margin: 0; margin-bottom: 32px;
+  }
+
+  .stack {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 22px;
+    max-width: 460px;
+  }
+  .stat-val {
+    font-size: 24px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff; line-height: 1;
+  }
+  .stat-lbl {
+    font-size: 10px; color: #9379a8;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 600; margin-top: 8px;
+  }
+
+  .brand-foot {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: #9379a8;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .build {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 10px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+  }
+  .build .dot-g { width: 6px; height: 6px; border-radius: 6px; background: var(--lime); }
+
+  /* RIGHT PANEL — form */
+  .form-panel {
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+  }
+  .form-top {
+    position: absolute;
+    top: 24px; right: 32px;
+    font-size: 12px; color: var(--ink-3);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .form-card {
+    width: 100%;
+    max-width: 380px;
+  }
+  .form-title {
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin: 0; margin-bottom: 6px;
+  }
+  .form-sub {
+    font-size: 13.5px; color: var(--ink-3);
+    margin: 0; margin-bottom: 26px;
+  }
+
+  .restricted {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--lime-bg);
+    border: 1px solid #cee68a;
+    color: var(--lime-dark);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11.5px; font-weight: 600;
+    margin-bottom: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .label {
+    font-size: 11.5px; font-weight: 700;
+    color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .input-wrap {
+    position: relative;
+    display: flex; align-items: center;
+  }
+  .input-wrap .lead {
+    position: absolute; left: 12px;
+    color: var(--ink-3);
+    display: grid; place-items: center;
+    pointer-events: none;
+  }
+  .input-wrap .trail {
+    position: absolute; right: 10px;
+    color: var(--ink-3);
+    background: transparent; border: 0; cursor: pointer;
+    padding: 6px;
+    display: grid; place-items: center;
+  }
+  .input-wrap .trail:hover { color: var(--ink); }
+  .input {
+    width: 100%;
+    padding: 11px 14px 11px 38px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .input::placeholder { color: var(--ink-4); }
+  .input:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(107,45,138,0.12);
+  }
+  .input.has-trail { padding-right: 42px; }
+
+  .row-between {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+    margin-top: 2px;
+  }
+  .check {
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    font-size: 12.5px; color: var(--ink-2); font-weight: 500;
+    user-select: none;
+  }
+  .check input { display: none; }
+  .check .box {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 1.5px solid var(--border-strong);
+    background: #fff;
+    display: grid; place-items: center;
+    color: transparent;
+    transition: all 0.12s;
+  }
+  .check input:checked + .box {
+    background: var(--purple-700);
+    border-color: var(--purple-700);
+    color: var(--lime);
+  }
+  .forgot {
+    font-size: 12.5px; color: var(--purple-600); font-weight: 600;
+    cursor: pointer;
+  }
+  .forgot:hover { color: var(--purple-800); }
+
+  .submit {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 9px;
+    background: var(--purple-700);
+    color: #fff;
+    border: 0;
+    font-family: inherit;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.12s, transform 0.04s;
+    box-shadow: 0 1px 2px rgba(30,10,44,0.08);
+  }
+  .submit:hover { background: var(--purple-800); }
+  .submit:active { transform: translateY(1px); }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 22px 0;
+    color: var(--ink-4);
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1;
+    height: 1px; background: var(--border);
+  }
+
+  .sso {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 9px;
+    background: #fff;
+    border: 1px solid var(--border);
+    font-family: inherit;
+    font-size: 13.5px; font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: border-color 0.12s, background 0.12s;
+  }
+  .sso:hover { border-color: var(--border-strong); background: #fafafa; }
+  .sso .gicon {
+    width: 18px; height: 18px;
+    background: conic-gradient(from 0deg, #ea4335 0deg 90deg, #fbbc05 90deg 180deg, #34a853 180deg 270deg, #4285f4 270deg 360deg);
+    border-radius: 50%;
+    position: relative;
+  }
+  .sso .gicon::after {
+    content: ''; position: absolute; inset: 4px;
+    background: #fff; border-radius: 50%;
+  }
+
+  .legal {
+    margin-top: 22px;
+    font-size: 11.5px; color: var(--ink-3);
+    line-height: 1.55;
+    text-align: center;
+  }
+  .legal a { color: var(--purple-600); font-weight: 600; }
+
+  .support-link {
+    position: absolute;
+    bottom: 24px; left: 0; right: 0;
+    text-align: center;
+    font-size: 12px; color: var(--ink-3);
+  }
+  .support-link a { color: var(--purple-600); font-weight: 600; }
+
+  /* small extras */
+  .badge-2fa {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--purple-50);
+    color: var(--purple-700);
+    padding: 4px 9px; border-radius: 5px;
+    font-size: 10.5px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid var(--purple-100);
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+      <rect x="4" y="11" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <path d="m3 7 9 6 9-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.75"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="m5 12 5 5 9-11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+      <path d="M12 3 4 6v6c0 4.5 3.5 8 8 9 4.5-1 8-4.5 8-9V6z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+      <path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="m13 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-help" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <path d="M9.5 9.5a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      <circle cx="12" cy="17" r=".8" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24">
+      <path d="M13 2 3 14h9l-1 8 10-12h-9z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <!-- BRAND PANEL -->
+  <aside class="brand-panel">
+    <div class="brand-row">
+      <div class="brand-mark">T</div>
+      <div>
+        <div class="brand-text">TurboCloud</div>
+        <div class="brand-sub">Help</div>
+      </div>
+    </div>
+
+    <div class="brand-body">
+      <div class="brand-eyebrow">
+        <span class="dot"></span>
+        Base de conhecimento · v3.2
+      </div>
+      <h1 class="brand-title">
+        Atendimento mais rápido,<br/>
+        com <span class="accent">respostas certas</span>.
+      </h1>
+      <p class="brand-desc">
+        Tudo que o time de suporte L1/L2 da TurboCloud precisa para resolver chamados:
+        tutoriais, troubleshooting, políticas internas e procedimentos de escalada — em um só lugar.
+      </p>
+
+    </div>
+
+    <div class="brand-foot">
+      <span>© 2026 TurboCloud · uso interno restrito</span>
+    </div>
+  </aside>
+
+  <!-- FORM PANEL -->
+  <section class="form-panel">
+    <form class="form-card" onsubmit="event.preventDefault(); window.location.href='TurboCloud Helpdesk.html';">
+      <div class="restricted">
+        <svg width="13" height="13"><use href="#i-shield"/></svg>
+        Acesso restrito · time interno
+      </div>
+
+      <h2 class="form-title">Entrar na Base de Ajuda</h2>
+      <p class="form-sub">Use seu e-mail corporativo TurboCloud.</p>
+
+      <div class="field">
+        <label class="label" for="email">E-mail corporativo</label>
+        <div class="input-wrap">
+          <span class="lead"><svg width="16" height="16"><use href="#i-mail"/></svg></span>
+          <input class="input" id="email" type="email" placeholder="nome@turbocloud.com.br" value="admin@turbocloud.com.br" required/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="senha">Senha</label>
+        <div class="input-wrap">
+          <span class="lead"><svg width="16" height="16"><use href="#i-lock"/></svg></span>
+          <input class="input has-trail" id="senha" type="password" placeholder="••••••••••" value="senha-segura-123" required/>
+          <button type="button" class="trail" title="Mostrar senha" onclick="const i=document.getElementById('senha'); i.type=i.type==='password'?'text':'password';">
+            <svg width="16" height="16"><use href="#i-eye"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="row-between">
+        <label class="check">
+          <input type="checkbox" checked/>
+          <span class="box"><svg width="10" height="10"><use href="#i-check"/></svg></span>
+          Manter conectado por 7 dias
+        </label>
+        <a class="forgot" href="#">Esqueci a senha</a>
+      </div>
+
+      <button class="submit" type="submit">
+        Entrar
+        <svg width="14" height="14"><use href="#i-arrow"/></svg>
+      </button>
+
+      <p class="legal">
+        Ao continuar você concorda com a <a href="#">Política de uso interno</a> e o <a href="#">Código de conduta</a>.<br/>
+        Atividades nesta plataforma são auditadas.
+      </p>
+    </form>
+  </section>
+
+</div>
+
+</body>
+</html>

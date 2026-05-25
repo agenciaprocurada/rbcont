@@ -1,0 +1,146 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  password         String
+  name             String
+  role             UserRole         @default(WRITER)
+  active           Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  articles         Article[]        @relation("ArticleAuthor")
+  articleViews     ArticleView[]
+  favorites        Favorite[]
+  searchActivities SearchActivity[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String?
+  order       Int       @default(0)
+  active      Boolean   @default(true)
+  articles    Article[]
+
+  @@map("categories")
+}
+
+model Article {
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  type         ArticleType   @default(TEXT)
+  content      String
+  excerpt      String?
+  videoUrl     String?
+  status       ArticleStatus @default(DRAFT)
+  views        Int           @default(0)
+  helpful      Int           @default(0)
+  notHelpful   Int           @default(0)
+  featured     Boolean       @default(false)
+  publishedAt  DateTime?
+  categoryId   String
+  authorId     String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  author       User          @relation("ArticleAuthor", fields: [authorId], references: [id])
+  category     Category      @relation(fields: [categoryId], references: [id])
+  articleViews ArticleView[]
+  favorites    Favorite[]
+  highlights   Highlight[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([status])
+  @@index([type])
+  @@map("articles")
+}
+
+model Highlight {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  articleId String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@map("highlights")
+}
+
+model ArticleView {
+  id        String   @id @default(cuid())
+  articleId String
+  userId    String?
+  createdAt DateTime @default(now())
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([articleId, createdAt])
+  @@index([createdAt])
+  @@index([userId])
+  @@map("article_views")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId])
+  @@index([articleId])
+  @@index([createdAt])
+  @@map("favorites")
+}
+
+model SearchActivity {
+  id           String   @id @default(cuid())
+  query        String
+  normalizedQ  String
+  resultsCount Int      @default(0)
+  userId       String
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([normalizedQ])
+  @@index([resultsCount])
+  @@index([createdAt])
+  @@index([userId])
+  @@map("search_activities")
+}
+
+enum ArticleStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ArticleType {
+  TEXT
+  VIDEO
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  EDITOR
+  WRITER
+  VIEWER
+}
