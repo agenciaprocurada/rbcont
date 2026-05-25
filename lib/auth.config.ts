@@ -1,5 +1,8 @@
 import type { NextAuthConfig } from 'next-auth'
-import type { UserRole } from '@prisma/client'
+
+// UserRole espelhado do enum em prisma/schema.prisma.
+// Inline (não importado de @prisma/client) para manter o bundle Edge-safe.
+type UserRole = 'SUPER_ADMIN' | 'EDITOR' | 'WRITER' | 'VIEWER'
 
 /**
  * Configuração base do NextAuth — Edge-compatible.
