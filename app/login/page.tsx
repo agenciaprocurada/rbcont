@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 export default function LoginPage() {
   return (
@@ -147,6 +148,13 @@ function LoginPageInner() {
               </svg>
             )}
           </button>
+
+          <p className="tc-login__legal" style={{ marginTop: 12 }}>
+            Ainda não tem acesso?{' '}
+            <Link href="/cadastro" style={{ color: 'var(--color-primary, #b5793f)', fontWeight: 600 }}>
+              Criar conta
+            </Link>
+          </p>
 
           <p className="tc-login__legal">
             Plataforma RBCont.<br />

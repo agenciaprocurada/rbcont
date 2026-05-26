@@ -14,6 +14,7 @@ model User {
   email            String           @unique
   password         String
   name             String
+  phone            String?
   role             UserRole         @default(WRITER)
   active           Boolean          @default(true)
   createdAt        DateTime         @default(now())
@@ -23,6 +24,25 @@ model User {
   searchActivities SearchActivity[]
 
   @@map("users")
+}
+
+model PendingRegistration {
+  id          String                    @id @default(cuid())
+  name        String
+  email       String
+  phone       String
+  password    String
+  ip          String?
+  status      PendingRegistrationStatus @default(PENDING)
+  createdAt   DateTime                  @default(now())
+  reviewedAt  DateTime?
+  reviewedBy  String?
+  rejectReason String?
+
+  @@index([status])
+  @@index([email])
+  @@index([createdAt])
+  @@map("pending_registrations")
 }
 
 model Category {
@@ -143,4 +163,10 @@ enum UserRole {
   EDITOR
   WRITER
   VIEWER
+}
+
+enum PendingRegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
