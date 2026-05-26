@@ -1,28 +1,37 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 
 /**
- * Middleware Edge-safe.
- * Não usa NextAuth(authConfig) porque o bundle do @auth/core arrasta dependências
- * Node-only (__dirname) que quebram no Edge Runtime da Vercel.
- * Em vez disso, usamos getToken — função expressamente Edge-compatible do next-auth.
+ * Middleware Edge-safe (zero deps de next-auth).
+ *
+ * Por que não usa NextAuth() ou getToken():
+ * O @auth/core (transitive do next-auth) bundla dependências Node-only
+ * (__dirname is not defined) que quebram no Edge Runtime da Vercel.
+ *
+ * Estratégia: o middleware só verifica a PRESENÇA do cookie de sessão.
+ * A validação completa do JWT acontece em cada Server Component/Action
+ * via lib/auth.ts (Node runtime), que ainda usa NextAuth() normalmente.
+ *
+ * Tradeoff: um atacante com cookie inválido passa o middleware mas é
+ * rejeitado na page (que faz await auth()). Mesmo nível de proteção real,
+ * só muda em que camada o usuário não-autenticado é barrado.
  */
-export default async function middleware(req: NextRequest) {
+
+const SESSION_COOKIE_NAMES = [
+  '__Secure-authjs.session-token', // produção HTTPS
+  'authjs.session-token',           // dev local
+  '__Secure-next-auth.session-token', // legado v4 HTTPS
+  'next-auth.session-token',         // legado v4 dev
+]
+
+export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   const requestHeaders = new Headers(req.headers)
   requestHeaders.set('x-pathname', pathname)
 
-  const token = await getToken({
-    req,
-    secret: process.env.AUTH_SECRET,
-    salt: process.env.NODE_ENV === 'production'
-      ? '__Secure-authjs.session-token'
-      : 'authjs.session-token',
-  })
+  const hasSession = SESSION_COOKIE_NAMES.some((name) => req.cookies.has(name))
 
-  if (!token) {
-    // APIs respondem JSON 401 em vez de redirecionar para HTML
+  if (!hasSession) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
