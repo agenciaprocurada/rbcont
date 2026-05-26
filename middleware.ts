@@ -1,16 +1,27 @@
-import NextAuth from 'next-auth'
-import { authConfig } from './lib/auth.config'
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-const { auth } = NextAuth(authConfig)
-
-export default auth((req) => {
+/**
+ * Middleware Edge-safe.
+ * Não usa NextAuth(authConfig) porque o bundle do @auth/core arrasta dependências
+ * Node-only (__dirname) que quebram no Edge Runtime da Vercel.
+ * Em vez disso, usamos getToken — função expressamente Edge-compatible do next-auth.
+ */
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   const requestHeaders = new Headers(req.headers)
   requestHeaders.set('x-pathname', pathname)
 
-  if (!req.auth) {
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    salt: process.env.NODE_ENV === 'production'
+      ? '__Secure-authjs.session-token'
+      : 'authjs.session-token',
+  })
+
+  if (!token) {
     // APIs respondem JSON 401 em vez de redirecionar para HTML
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -25,7 +36,7 @@ export default auth((req) => {
   return NextResponse.next({
     request: { headers: requestHeaders },
   })
-})
+}
 
 export const config = {
   matcher: [
