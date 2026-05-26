@@ -46,7 +46,20 @@
       "Bash(npm view *)",
       "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" -L \"https://rbcont.vercel.app/\")",
       "Bash(curl -sS -o /dev/null -w \"deploy URL: %{http_code}\\\\n\" -L \"https://rbcont-6ndk66gzp-agenciaprocuradas-projects.vercel.app/\")",
-      "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" -L \"https://rbcont.vercel.app/?bust=$\\(date +%s\\)\")"
+      "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" -L \"https://rbcont.vercel.app/?bust=$\\(date +%s\\)\")",
+      "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" \"https://rbcont.vercel.app/\")",
+      "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" \"https://rbcont.vercel.app/login\")",
+      "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" \"https://rbcont.vercel.app/ajuda/primeiros-passos\")",
+      "Bash(curl -sS \"https://rbcont.vercel.app/?b=$\\(date +%s\\)\")",
+      "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" -L \"https://rbcont-ic5t4aayc-agenciaprocuradas-projects.vercel.app/login\")",
+      "Bash(curl -sS -o /dev/null -w \"HTTP: %{http_code}\\\\n\" -H \"Host: rbcont.vercel.app\" \"https://rbcont-ic5t4aayc-agenciaprocuradas-projects.vercel.app/login\")",
+      "Bash(vercel alias *)",
+      "Bash(curl -sS \"https://rbcont.vercel.app/login\")",
+      "Bash(vercel --prod --yes)",
+      "Bash(curl -sS -o /dev/null -w \"Deploy /login: %{http_code}\\\\n\" -L \"https://rbcont-pbu6910ro-agenciaprocuradas-projects.vercel.app/login\")",
+      "Bash(curl -sS -o /dev/null -w \"Deploy /: %{http_code}\\\\n\" -L \"https://rbcont-pbu6910ro-agenciaprocuradas-projects.vercel.app/\")",
+      "Bash(curl -sS -o /dev/null -w \"Production alias /login: %{http_code}\\\\n\" \"https://rbcont.vercel.app/login\")",
+      "Bash(vercel projects *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\agenc\\meusprojetos\\rbcont\\scripts"
