@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // output: 'standalone' removido — conflita com o build da Vercel e estava
+  // resultando em __dirname undefined no middleware Edge. Vercel não precisa
+  // de standalone (usa seu próprio runtime).
   images: {
-    // ajuda.turbocloud.com.br mantido para artigos seedados do projeto antigo
-    // que ainda referenciam imagens externas hospedadas lá.
     domains: ['ajuda.turbocloud.com.br', 'ajuda.rbcont.com.br'],
   },
 }
