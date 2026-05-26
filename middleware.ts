@@ -1,27 +1,28 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 /**
- * Middleware Edge-safe (zero deps de next-auth).
+ * Middleware Edge-safe (zero deps).
  *
- * Por que não usa NextAuth() ou getToken():
- * O @auth/core (transitive do next-auth) bundla dependências Node-only
- * (__dirname is not defined) que quebram no Edge Runtime da Vercel.
+ * Por que tudo é manual:
+ * - NextAuth()/getToken arrastam @auth/core com __dirname (quebra no Edge)
+ * - req.cookies.has() arrasta o pacote `cookie` que tem eval() (quebra no Edge)
+ * Então parseamos o header de cookie na unha — só primitivos de Edge Runtime.
  *
- * Estratégia: o middleware só verifica a PRESENÇA do cookie de sessão.
- * A validação completa do JWT acontece em cada Server Component/Action
- * via lib/auth.ts (Node runtime), que ainda usa NextAuth() normalmente.
- *
- * Tradeoff: um atacante com cookie inválido passa o middleware mas é
- * rejeitado na page (que faz await auth()). Mesmo nível de proteção real,
- * só muda em que camada o usuário não-autenticado é barrado.
+ * Estratégia: verificar PRESENÇA do cookie de sessão.
+ * Validação real do JWT acontece em cada Server Component via lib/auth.ts (Node).
  */
 
 const SESSION_COOKIE_NAMES = [
-  '__Secure-authjs.session-token', // produção HTTPS
-  'authjs.session-token',           // dev local
-  '__Secure-next-auth.session-token', // legado v4 HTTPS
-  'next-auth.session-token',         // legado v4 dev
+  '__Secure-authjs.session-token',
+  'authjs.session-token',
+  '__Secure-next-auth.session-token',
+  'next-auth.session-token',
 ]
+
+function hasSessionCookie(cookieHeader: string | null): boolean {
+  if (!cookieHeader) return false
+  return SESSION_COOKIE_NAMES.some((name) => cookieHeader.includes(name + '='))
+}
 
 export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -29,9 +30,7 @@ export default function middleware(req: NextRequest) {
   const requestHeaders = new Headers(req.headers)
   requestHeaders.set('x-pathname', pathname)
 
-  const hasSession = SESSION_COOKIE_NAMES.some((name) => req.cookies.has(name))
-
-  if (!hasSession) {
+  if (!hasSessionCookie(req.headers.get('cookie'))) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
