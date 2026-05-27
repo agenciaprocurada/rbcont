@@ -627,6 +627,28 @@ body {
   .tc-hero__desc { font-size: 13px; max-width: none; }
   .tc-hero__stats { gap: 18px; flex-wrap: wrap; }
   .tc-hero__statVal { font-size: 24px; }
+
+  /* Article list — stack as card on mobile */
+  .tc-artList__head { display: none; }
+  .tc-artList__row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "title chev"
+      "m1 m1"
+      "m2 m2";
+    gap: 6px 12px;
+    padding: 14px 16px;
+    align-items: start;
+  }
+  .tc-artList__row > :nth-child(1) { grid-area: title; min-width: 0; }
+  .tc-artList__row > :nth-child(2) { grid-area: m1; }
+  .tc-artList__row > :nth-child(3) { grid-area: m2; }
+  .tc-artList__row > :nth-child(4) { grid-area: chev; margin-top: 2px; align-self: start; }
+  .tc-artList__row > :nth-child(2):empty,
+  .tc-artList__row > :nth-child(3):empty { display: none; }
+  .tc-artList__title { font-size: 14px; }
+  .tc-artList__excerpt { font-size: 12px; }
+  .tc-artList__cell { font-size: 11px; }
 }
 
 @media (max-width: 480px) {
