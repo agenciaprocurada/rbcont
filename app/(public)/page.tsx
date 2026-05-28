@@ -95,43 +95,35 @@ export default async function HubPage() {
             </div>
 
             <div className="tc-hotList">
-              {trending.map((a, i) => {
-                const level = i === 0 ? 'hot' : i < 3 ? 'rising' : 'normal'
-                return (
-                  <Link
-                    key={a.id}
-                    href={`/ajuda/${a.category.slug}/${a.slug}`}
-                    className="tc-hotRow"
-                  >
-                    <span className={`tc-hotRank ${i < 3 ? 'is-top' : ''}`}>
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <div>
-                      <div className="tc-hotTitle">{a.title}</div>
-                      <div className="tc-hotMeta">
-                        <span>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', verticalAlign: -1, marginRight: 3 }}>
-                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" />
-                            <circle cx="12" cy="12" r="3" />
-                          </svg>
-                          {a.views.toLocaleString('pt-BR')}
-                        </span>
-                        <span className="mono" style={{ color: 'var(--ink-4)' }}>
-                          upd {formatDate(a.updatedAt)}
-                        </span>
-                      </div>
+              {trending.map((a, i) => (
+                <Link
+                  key={a.id}
+                  href={`/ajuda/${a.category.slug}/${a.slug}`}
+                  className="tc-hotRow"
+                >
+                  <span className={`tc-hotRank ${i < 3 ? 'is-top' : ''}`}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <div className="tc-hotTitle">{a.title}</div>
+                    <div className="tc-hotMeta">
+                      <span>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', verticalAlign: -1, marginRight: 3 }}>
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        {a.views.toLocaleString('pt-BR')}
+                      </span>
+                      <span className="mono" style={{ color: 'var(--ink-4)' }}>
+                        upd {formatDate(a.updatedAt)}
+                      </span>
                     </div>
-                    <span className={`tc-pop ${level}`}>
-                      {level === 'hot' && 'Hot'}
-                      {level === 'rising' && 'Em alta'}
-                      {level === 'normal' && 'Estável'}
-                    </span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m9 6 6 6-6 6" />
-                    </svg>
-                  </Link>
-                )
-              })}
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 6 6 6-6 6" />
+                  </svg>
+                </Link>
+              ))}
             </div>
           </>
         )}
