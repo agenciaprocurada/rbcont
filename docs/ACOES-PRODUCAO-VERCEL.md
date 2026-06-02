@@ -1,0 +1,85 @@
+# Ações necessárias em produção (Vercel) — conta agenciaprocurada
+
+> Estas ações **só podem ser feitas por quem tem acesso ao team Vercel
+> `agenciaprocuradas-projects`** (onde o projeto `rbcont` / `rbcont.vercel.app`
+> está hospedado). Levam ~5 minutos e resolvem a lentidão do site.
+
+## Contexto (por que isso é necessário)
+
+O site estava lento (requisições de 1,5 s–2,3 s e travadas de ~10 s) porque a
+aplicação conectava ao banco Supabase pela **conexão direta** (porta 5432). Em
+ambiente serverless (Vercel), isso é lento para estabelecer e estoura o limite
+de conexões. A correção é usar o **connection pooler** do Supabase (porta 6543).
+
+A mudança é **só de configuração** (variáveis de ambiente) — o código já está
+preparado. Nenhum dado é alterado.
+
+---
+
+## Ação 1 — Corrigir as variáveis de ambiente (PRINCIPAL)
+
+No painel da Vercel:
+
+1. Acesse o projeto **`rbcont`** no team **`agenciaprocuradas-projects`**.
+2. Vá em **Settings → Environment Variables**.
+3. **Edite** (ou crie, se não existir) a variável **`DATABASE_URL`**, ambiente
+   **Production**, com este valor exato:
+
+   ```
+   postgresql://postgres.jiaiwdybyyrprfhczjyu:WJCxrGfK8%3FMd%40K%2A@aws-1-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+   ```
+
+4. **Edite** (ou crie) a variável **`DIRECT_URL`**, ambiente **Production**, com:
+
+   ```
+   postgresql://postgres.jiaiwdybyyrprfhczjyu:WJCxrGfK8%3FMd%40K%2A@aws-1-sa-east-1.pooler.supabase.com:5432/postgres
+   ```
+
+5. **Salve** as duas.
+6. Vá em **Deployments**, abra o último deploy de produção, menu **⋯ →
+   Redeploy** (pode deixar marcado "use existing build cache").
+
+> Observação: a senha aparece codificada (`%3F` = `?`, `%40` = `@`, `%2A` = `*`).
+> Está correto — é assim que a senha vai dentro de uma URL.
+
+### Como saber se funcionou
+Depois do redeploy, abra o site e navegue entre artigos. As respostas devem cair
+de ~1,5–2 s para algumas centenas de ms, e as travadas de ~10 s devem sumir.
+
+---
+
+## Ação 2 — Confirmar o cron de keep-alive (automático)
+
+O código novo já inclui um **Vercel Cron** diário (configurado em `vercel.json`)
+que faz um `SELECT 1` no banco para o projeto Supabase no plano Free não pausar
+por inatividade. **Não precisa fazer nada manual** — ele passa a rodar sozinho
+após o deploy. Para conferir: **Settings → Cron Jobs** deve listar
+`/api/cron/keep-alive` rodando uma vez por dia.
+
+---
+
+## Ação 3 (SEGURANÇA — recomendada) — Rotacionar a senha do banco
+
+A senha atual do banco **vazou no histórico do Git** (estava embutida em um
+arquivo de configuração versionado). Mesmo após a limpeza, ela continua nos
+commits antigos. Recomendação:
+
+1. No **Supabase** (projeto `jiaiwdybyyrprfhczjyu`): **Project Settings →
+   Database → Reset database password**.
+2. Gerar uma senha nova.
+3. Atualizar `DATABASE_URL` e `DIRECT_URL` na Vercel (Ação 1) com a senha nova
+   (lembre de codificar caracteres especiais na URL).
+4. Avisar para atualizarmos o `.env.local` local também.
+
+> Sem isso, qualquer pessoa com acesso ao histórico do repositório consegue a
+> senha do banco de produção.
+
+---
+
+## Resumo rápido
+
+| Ação | Onde | Obrigatória? |
+|------|------|--------------|
+| 1. `DATABASE_URL` + `DIRECT_URL` para o pooler | Vercel → Env Vars | ✅ Sim (resolve a lentidão) |
+| 2. Conferir cron keep-alive | Vercel → Cron Jobs | Automático |
+| 3. Rotacionar senha do banco | Supabase → Database | ⚠️ Fortemente recomendada |

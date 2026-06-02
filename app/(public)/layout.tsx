@@ -1,26 +1,17 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { getActiveCategories } from '@/lib/cache'
 import { Sidebar } from '@/components/public/Sidebar'
-
-export const dynamic = 'force-dynamic'
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
   if (!session) redirect('/login')
 
   const [categories, favoritesCount] = await Promise.all([
-    prisma.category.findMany({
-      where: { active: true },
-      orderBy: { order: 'asc' },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        icon: true,
-        _count: { select: { articles: { where: { status: 'PUBLISHED' } } } },
-      },
-    }),
+    // Conteúdo compartilhado: vem do cache (invalidado on-demand pelo admin).
+    getActiveCategories(),
+    // Por-usuário: sempre dinâmico.
     prisma.favorite.count({ where: { userId: session.user.id } }),
   ])
 

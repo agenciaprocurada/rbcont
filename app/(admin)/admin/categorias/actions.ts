@@ -2,7 +2,8 @@
 
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { TAGS } from '@/lib/cache'
 
 async function checkPermission() {
   const session = await auth()
@@ -26,7 +27,7 @@ export async function saveCategory(data: {
       where: { id: data.id },
       data,
     })
-    revalidatePath('/ajuda')
+    revalidateTag(TAGS.categories)
     revalidatePath(`/admin/categorias`)
     return { success: true, category: updated }
   } else {
@@ -38,7 +39,7 @@ export async function saveCategory(data: {
         order: (maxOrder._max.order ?? 0) + 1,
       },
     })
-    revalidatePath('/ajuda')
+    revalidateTag(TAGS.categories)
     revalidatePath(`/admin/categorias`)
     return { success: true, category: created }
   }
@@ -57,7 +58,7 @@ export async function reorderCategories(orderedIds: string[]) {
     )
   )
 
-  revalidatePath('/ajuda')
+  revalidateTag(TAGS.categories)
   revalidatePath(`/admin/categorias`)
   return { success: true }
 }

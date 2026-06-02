@@ -1,49 +1,27 @@
-import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Topbar } from '@/components/public/Topbar'
 import { Icon } from '@/components/public/Icon'
 import { iconForSlug } from '@/lib/categoryIcon'
 import { buildHubMetadata } from '@/lib/seo'
-
-export const dynamic = 'force-dynamic'
+import { getHomeData } from '@/lib/cache'
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildHubMetadata()
 }
 
-function formatDate(d: Date | null): string {
+function formatDate(d: Date | string | null): string {
   if (!d) return ''
+  // unstable_cache serializa Date -> string; reconverte para evitar "Invalid time value".
+  const date = d instanceof Date ? d : new Date(d)
+  if (Number.isNaN(date.getTime())) return ''
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-    .format(d)
+    .format(date)
     .replace(/\./g, '')
 }
 
 export default async function HubPage() {
-  const [trending, categories, totalArticles, totalUpdated7d] = await Promise.all([
-    prisma.article.findMany({
-      where: { status: 'PUBLISHED' },
-      orderBy: { views: 'desc' },
-      take: 5,
-      select: {
-        id: true, title: true, slug: true, views: true, updatedAt: true,
-        category: { select: { slug: true, name: true } },
-      },
-    }),
-    prisma.category.findMany({
-      where: { active: true },
-      orderBy: { order: 'asc' },
-      take: 8,
-      include: { _count: { select: { articles: { where: { status: 'PUBLISHED' } } } } },
-    }),
-    prisma.article.count({ where: { status: 'PUBLISHED' } }),
-    prisma.article.count({
-      where: {
-        status: 'PUBLISHED',
-        updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-      },
-    }),
-  ])
+  const { trending, categories, totalArticles, totalUpdated7d } = await getHomeData()
 
   const activeCats = categories.filter((c) => c._count.articles > 0).length
 
