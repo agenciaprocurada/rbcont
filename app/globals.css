@@ -47,8 +47,8 @@
   --blue:           #2563eb;
   --blue-bg:        #dbeafe;
 
-  --font-sans:      'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono:      'JetBrains Mono', monospace;
+  --font-sans:      var(--font-manrope), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:      var(--font-jetbrains-mono), 'Menlo', 'Monaco', monospace;
 
   /* ── Aliases legados (admin antigo) ── */
   --color-primary:        #2a2a2f;

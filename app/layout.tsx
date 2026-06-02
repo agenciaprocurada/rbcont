@@ -1,8 +1,26 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { Manrope, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import './globals-tc.css'
 import { NavProgress } from '@/components/NavProgress'
+
+// Fontes self-hosted pelo next/font: sem request render-blocking ao Google,
+// sem FOUT, e só os pesos realmente usados. Expostas via CSS variables que o
+// globals.css consome em --font-sans / --font-mono.
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-manrope',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-jetbrains-mono',
+})
 
 export const metadata: Metadata = {
   title: 'RBCont',
@@ -16,11 +34,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${manrope.variable} ${jetbrainsMono.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link rel="dns-prefetch" href="https://ajuda.turbocloud.com.br" />
+        <link rel="dns-prefetch" href="https://ajuda.rbcont.com.br" />
       </head>
       <body>
         <Suspense fallback={null}>
