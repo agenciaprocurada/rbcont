@@ -1,9 +1,11 @@
 import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { auth } from '@/lib/auth'
+import { TAGS } from '@/lib/cache'
 import { Topbar } from '@/components/public/Topbar'
 import ViewsTracker from '@/components/public/ViewsTracker'
 import FeedbackWidget from '@/components/public/FeedbackWidget'
@@ -12,16 +14,17 @@ import { VideoEmbed } from '@/components/public/VideoEmbed'
 import { buildArticleMetadata } from '@/lib/seo'
 import { addHeadingIds } from '@/lib/htmlUtils'
 
-export const dynamic = 'force-dynamic'
-
 interface Props {
   params: { categoria: string; slug: string }
 }
 
-function formatDate(d: Date | null): string {
+function formatDate(d: Date | string | null): string {
   if (!d) return '—'
+  // unstable_cache serializa Date -> string; reconverte para evitar "Invalid time value".
+  const date = d instanceof Date ? d : new Date(d)
+  if (Number.isNaN(date.getTime())) return '—'
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-    .format(d)
+    .format(date)
     .replace(/\./g, '')
 }
 
@@ -31,17 +34,38 @@ function estimateReadingTime(html: string): number {
   return Math.max(1, Math.ceil(words / 200))
 }
 
-// Cacheada por request (React.cache): generateMetadata e ArticlePage chamam a
-// mesma busca, mas o Prisma só é consultado uma vez por requisição.
+// Conteúdo do artigo (igual para todos): cacheado on-demand por tag `articles`.
+// O React.cache externo de-duplica a chamada dentro da mesma requisição
+// (generateMetadata + ArticlePage), e o unstable_cache evita ir ao banco entre
+// requisições até o admin editar/publicar um artigo.
 const getArticle = cache((categoria: string, slug: string) =>
-  prisma.article.findFirst({
-    where: { slug, status: 'PUBLISHED', category: { slug: categoria } },
-    include: {
-      category: true,
-      author: { select: { name: true } },
-    },
-  }),
+  unstable_cache(
+    () =>
+      prisma.article.findFirst({
+        where: { slug, status: 'PUBLISHED', category: { slug: categoria } },
+        include: {
+          category: true,
+          author: { select: { name: true } },
+        },
+      }),
+    ['article', categoria, slug],
+    { tags: [TAGS.articles] },
+  )(),
 )
+
+// Artigos relacionados (conteúdo compartilhado) — também cacheado por tag.
+const getRelated = (categoryId: string, excludeId: string) =>
+  unstable_cache(
+    () =>
+      prisma.article.findMany({
+        where: { categoryId, status: 'PUBLISHED', id: { not: excludeId } },
+        orderBy: { views: 'desc' },
+        take: 5,
+        select: { id: true, title: true, slug: true, category: { select: { slug: true } } },
+      }),
+    ['related', categoryId, excludeId],
+    { tags: [TAGS.articles] },
+  )()
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getArticle(params.categoria, params.slug)
@@ -66,12 +90,7 @@ export default async function ArticlePage({ params }: Props) {
   const readingTime = estimateReadingTime(article.content)
   const contentWithIds = addHeadingIds(article.content)
 
-  const related = await prisma.article.findMany({
-    where: { categoryId: article.categoryId, status: 'PUBLISHED', id: { not: article.id } },
-    orderBy: { views: 'desc' },
-    take: 5,
-    select: { id: true, title: true, slug: true, category: { select: { slug: true } } },
-  })
+  const related = await getRelated(article.categoryId, article.id)
 
   return (
     <>

@@ -2,7 +2,8 @@
 
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { TAGS } from '@/lib/cache'
 import type { ArticleStatus, ArticleType } from '@prisma/client'
 
 export async function saveArticle(data: {
@@ -54,10 +55,10 @@ export async function saveArticle(data: {
     articleId = created.id
   }
 
-  revalidatePath('/ajuda')
+  // Invalida o cache de conteúdo on-demand (ver lib/cache.ts).
+  revalidateTag(TAGS.articles)
+  revalidateTag(TAGS.categories) // _count de artigos por categoria muda ao publicar
   revalidatePath('/admin/artigos')
-  revalidatePath(`/ajuda/[categoria]`, 'page')
-  revalidatePath(`/ajuda/[categoria]/[slug]`, 'page')
 
   return { success: true, articleId }
 }
@@ -70,6 +71,8 @@ export async function deleteArticles(ids: string[]) {
 
   await prisma.article.deleteMany({ where: { id: { in: ids } } })
 
+  revalidateTag(TAGS.articles)
+  revalidateTag(TAGS.categories)
   revalidatePath('/admin/artigos')
   return { success: true }
 }

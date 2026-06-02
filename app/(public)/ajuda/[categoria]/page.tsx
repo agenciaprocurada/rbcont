@@ -6,8 +6,7 @@ import { Topbar } from '@/components/public/Topbar'
 import { Icon } from '@/components/public/Icon'
 import { iconForSlug } from '@/lib/categoryIcon'
 import { buildCategoryMetadata } from '@/lib/seo'
-
-export const dynamic = 'force-dynamic'
+import { getCategoryPage } from '@/lib/cache'
 
 const ARTICLES_PER_PAGE = 20
 
@@ -16,10 +15,13 @@ interface Props {
   searchParams: { page?: string }
 }
 
-function formatDate(d: Date | null): string {
+function formatDate(d: Date | string | null): string {
   if (!d) return '—'
+  // unstable_cache serializa Date -> string; reconverte para evitar "Invalid time value".
+  const date = d instanceof Date ? d : new Date(d)
+  if (Number.isNaN(date.getTime())) return '—'
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-    .format(d)
+    .format(date)
     .replace(/\./g, '')
 }
 
@@ -30,28 +32,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
-  const category = await prisma.category.findUnique({
-    where: { slug: params.categoria, active: true },
-  })
-  if (!category) notFound()
-
   const page = Math.max(1, Number(searchParams.page ?? 1))
-  const skip = (page - 1) * ARTICLES_PER_PAGE
 
-  const [articles, total] = await Promise.all([
-    prisma.article.findMany({
-      where: { categoryId: category.id, status: 'PUBLISHED' },
-      orderBy: { views: 'desc' },
-      skip,
-      take: ARTICLES_PER_PAGE,
-      select: {
-        id: true, title: true, slug: true, excerpt: true,
-        views: true, updatedAt: true,
-      },
-    }),
-    prisma.article.count({ where: { categoryId: category.id, status: 'PUBLISHED' } }),
-  ])
+  const data = await getCategoryPage(params.categoria, page, ARTICLES_PER_PAGE)
+  if (!data) notFound()
 
+  const { category, articles, total } = data
   const totalPages = Math.ceil(total / ARTICLES_PER_PAGE)
 
   return (
