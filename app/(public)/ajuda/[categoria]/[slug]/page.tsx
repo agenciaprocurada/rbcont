@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -30,24 +31,27 @@ function estimateReadingTime(html: string): number {
   return Math.max(1, Math.ceil(words / 200))
 }
 
+// Cacheada por request (React.cache): generateMetadata e ArticlePage chamam a
+// mesma busca, mas o Prisma só é consultado uma vez por requisição.
+const getArticle = cache((categoria: string, slug: string) =>
+  prisma.article.findFirst({
+    where: { slug, status: 'PUBLISHED', category: { slug: categoria } },
+    include: {
+      category: true,
+      author: { select: { name: true } },
+    },
+  }),
+)
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = await prisma.article.findFirst({
-    where: { slug: params.slug, status: 'PUBLISHED', category: { slug: params.categoria } },
-    include: { category: true },
-  })
+  const article = await getArticle(params.categoria, params.slug)
   if (!article) return { title: 'Artigo não encontrado | RBCont' }
   return buildArticleMetadata(article, article.category)
 }
 
 export default async function ArticlePage({ params }: Props) {
   const session = await auth()
-  const article = await prisma.article.findFirst({
-    where: { slug: params.slug, status: 'PUBLISHED', category: { slug: params.categoria } },
-    include: {
-      category: true,
-      author: { select: { name: true } },
-    },
-  })
+  const article = await getArticle(params.categoria, params.slug)
   if (!article) notFound()
 
   const isFavorited = session
