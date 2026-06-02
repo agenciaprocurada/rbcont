@@ -77,6 +77,32 @@ commits antigos. Recomendação:
 
 ---
 
+## Ação 4 — Aplicar a migration de índices (uma vez)
+
+Foi adicionada a migration `20260602120000_add_perf_indexes` — apenas **4
+`CREATE INDEX`** (não-destrutivo, não altera dados) que aceleram as listagens
+(recentes, mais acessados, rankings por categoria). O build da Vercel **não**
+aplica migrations sozinho, então precisa rodar uma vez.
+
+Por quem tem o `DATABASE_URL`/`DIRECT_URL` (com a senha já rotacionada),
+localmente ou em qualquer máquina com o repo:
+
+```bash
+# garanta que DATABASE_URL e DIRECT_URL estão no ambiente (ou em .env)
+npx prisma migrate deploy
+```
+
+`migrate deploy` é o comando seguro para produção: aplica só as migrations
+pendentes, sem prompt e sem recriar nada. Os índices são criados sem travar a
+tabela (volume pequeno). Para conferir: a tabela `_prisma_migrations` deve
+listar `20260602120000_add_perf_indexes`.
+
+> Alternativa manual: o SQL está em
+> `prisma/migrations/20260602120000_add_perf_indexes/migration.sql` e pode ser
+> colado no **SQL Editor** do Supabase.
+
+---
+
 ## Resumo rápido
 
 | Ação | Onde | Obrigatória? |
@@ -84,3 +110,4 @@ commits antigos. Recomendação:
 | 1. `DATABASE_URL` + `DIRECT_URL` para o pooler | Vercel → Env Vars | ✅ Sim (resolve a lentidão) |
 | 2. Conferir cron keep-alive | Vercel → Cron Jobs | Automático |
 | 3. Rotacionar senha do banco | Supabase → Database | ⚠️ Fortemente recomendada |
+| 4. `npx prisma migrate deploy` (índices) | Terminal / SQL Editor | ✅ Sim (acelera listagens) |

@@ -101,3 +101,65 @@ export const getCategoryPage = (slug: string, page: number, perPage: number) =>
     ['category-page', slug, String(page), String(perPage)],
     { tags: [TAGS.articles, TAGS.categories] },
   )()
+
+// Artigos recentes (conteúdo compartilhado). Tag: articles.
+export const getRecentArticles = (limit: number) =>
+  unstable_cache(
+    async () =>
+      prisma.article.findMany({
+        where: { status: 'PUBLISHED' },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        select: {
+          id: true, title: true, slug: true, excerpt: true,
+          views: true, createdAt: true,
+          category: { select: { slug: true, name: true } },
+        },
+      }),
+    ['recent-articles', String(limit)],
+    { tags: [TAGS.articles] },
+  )()
+
+// Mais acessados na janela de N dias: ranking por views registradas.
+// Cacheado por tag (articles) + revalidate de 1h como teto, já que a janela
+// depende do tempo atual (a defasagem de 1h numa janela de dias é irrelevante).
+export const getMostViewed = (windowDays: number, topLimit: number) =>
+  unstable_cache(
+    async () => {
+      const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000)
+
+      const grouped = await prisma.articleView.groupBy({
+        by: ['articleId'],
+        where: { createdAt: { gte: since } },
+        _count: { _all: true },
+        orderBy: { _count: { articleId: 'desc' } },
+        take: topLimit,
+      })
+
+      const articleIds = grouped.map((g) => g.articleId)
+      const articles = articleIds.length
+        ? await prisma.article.findMany({
+            where: { id: { in: articleIds }, status: 'PUBLISHED' },
+            select: {
+              id: true, title: true, slug: true, excerpt: true,
+              views: true, updatedAt: true,
+              category: { select: { slug: true, name: true } },
+            },
+          })
+        : []
+
+      const articleMap = new Map(articles.map((a) => [a.id, a]))
+      return grouped
+        .map((g) => {
+          const article = articleMap.get(g.articleId)
+          if (!article) return null
+          return { article, viewsInWindow: g._count._all }
+        })
+        .filter(
+          (x): x is { article: (typeof articles)[number]; viewsInWindow: number } =>
+            x !== null,
+        )
+    },
+    ['most-viewed', String(windowDays), String(topLimit)],
+    { tags: [TAGS.articles], revalidate: 3600 },
+  )()

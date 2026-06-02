@@ -86,6 +86,11 @@ model Article {
   @@index([slug])
   @@index([status])
   @@index([type])
+  // Compostos para as listagens públicas: recentes (status + createdAt) e
+  // rankings por views (status + views, categoria + status + views).
+  @@index([status, createdAt])
+  @@index([status, views])
+  @@index([categoryId, status, views])
   @@map("articles")
 }
 
@@ -112,6 +117,8 @@ model ArticleView {
   @@index([articleId, createdAt])
   @@index([createdAt])
   @@index([userId])
+  // Otimiza o groupBy de "mais acessados" (filtra por createdAt, agrupa por articleId).
+  @@index([createdAt, articleId])
   @@map("article_views")
 }
 

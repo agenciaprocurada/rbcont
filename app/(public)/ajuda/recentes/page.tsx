@@ -1,10 +1,8 @@
-import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Topbar } from '@/components/public/Topbar'
 import { Icon } from '@/components/public/Icon'
-
-export const dynamic = 'force-dynamic'
+import { getRecentArticles } from '@/lib/cache'
 
 const RECENT_LIMIT = 10
 
@@ -12,28 +10,17 @@ export const metadata: Metadata = {
   title: 'Recentes | RBCont',
 }
 
-function formatDate(d: Date | null): string {
+function formatDate(d: Date | string | null): string {
   if (!d) return '—'
+  const date = d instanceof Date ? d : new Date(d)
+  if (Number.isNaN(date.getTime())) return '—'
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-    .format(d)
+    .format(date)
     .replace(/\./g, '')
 }
 
 export default async function RecentesPage() {
-  const articles = await prisma.article.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { createdAt: 'desc' },
-    take: RECENT_LIMIT,
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      excerpt: true,
-      views: true,
-      createdAt: true,
-      category: { select: { slug: true, name: true } },
-    },
-  })
+  const articles = await getRecentArticles(RECENT_LIMIT)
 
   return (
     <>

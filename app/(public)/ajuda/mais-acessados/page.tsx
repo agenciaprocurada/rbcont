@@ -1,10 +1,8 @@
-import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Topbar } from '@/components/public/Topbar'
 import { Icon } from '@/components/public/Icon'
-
-export const dynamic = 'force-dynamic'
+import { getMostViewed } from '@/lib/cache'
 
 const WINDOW_DAYS = 7
 const TOP_LIMIT = 30
@@ -13,49 +11,17 @@ export const metadata: Metadata = {
   title: 'Mais acessados | RBCont',
 }
 
-function formatDate(d: Date | null): string {
+function formatDate(d: Date | string | null): string {
   if (!d) return '—'
+  const date = d instanceof Date ? d : new Date(d)
+  if (Number.isNaN(date.getTime())) return '—'
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-    .format(d)
+    .format(date)
     .replace(/\./g, '')
 }
 
 export default async function MaisAcessadosPage() {
-  const since = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000)
-
-  const grouped = await prisma.articleView.groupBy({
-    by: ['articleId'],
-    where: { createdAt: { gte: since } },
-    _count: { _all: true },
-    orderBy: { _count: { articleId: 'desc' } },
-    take: TOP_LIMIT,
-  })
-
-  const articleIds = grouped.map((g) => g.articleId)
-
-  const articles = articleIds.length
-    ? await prisma.article.findMany({
-        where: { id: { in: articleIds }, status: 'PUBLISHED' },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          views: true,
-          updatedAt: true,
-          category: { select: { slug: true, name: true } },
-        },
-      })
-    : []
-
-  const articleMap = new Map(articles.map((a) => [a.id, a]))
-  const ranked = grouped
-    .map((g) => {
-      const article = articleMap.get(g.articleId)
-      if (!article) return null
-      return { article, viewsInWindow: g._count._all }
-    })
-    .filter((x): x is { article: typeof articles[number]; viewsInWindow: number } => x !== null)
+  const ranked = await getMostViewed(WINDOW_DAYS, TOP_LIMIT)
 
   return (
     <>
