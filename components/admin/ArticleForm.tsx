@@ -2,11 +2,18 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { SlugInput } from './SlugInput'
-import { Editor } from './Editor'
 import { saveArticle } from '@/app/(admin)/admin/artigos/actions'
 import type { ArticleStatus, ArticleType } from '@prisma/client'
 import { askGeminiReview } from '@/app/actions/ai'
+
+// Tiptap é pesado e client-only: carrega sob demanda (lazy) para não pesar no
+// bundle inicial da página de edição.
+const Editor = dynamic(() => import('./Editor').then((m) => m.Editor), {
+  ssr: false,
+  loading: () => <div style={{ padding: 16, color: 'var(--ink-3)' }}>Carregando editor…</div>,
+})
 
 interface CategoriaCompact {
   id: string

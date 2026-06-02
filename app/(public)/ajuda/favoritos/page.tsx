@@ -23,8 +23,10 @@ export default async function FavoritesPage() {
   const session = await auth()
   if (!session) redirect('/login')
 
-  const favorites = await prisma.favorite.findMany({
-    where: { userId: session.user.id },
+  // Filtra artigos publicados direto no banco (em vez de buscar tudo e filtrar
+  // em JS) — não traz rascunhos/arquivados do favorito do usuário.
+  const visible = await prisma.favorite.findMany({
+    where: { userId: session.user.id, article: { status: 'PUBLISHED' } },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -37,14 +39,11 @@ export default async function FavoritesPage() {
           excerpt: true,
           views: true,
           updatedAt: true,
-          status: true,
           category: { select: { slug: true, name: true } },
         },
       },
     },
   })
-
-  const visible = favorites.filter((f) => f.article.status === 'PUBLISHED')
 
   return (
     <>

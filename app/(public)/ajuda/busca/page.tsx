@@ -15,7 +15,8 @@ interface SearchResult {
   title: string
   slug: string
   excerpt: string | null
-  categoryId: string
+  categorySlug: string
+  categoryName: string
 }
 
 interface Props {
@@ -30,40 +31,31 @@ export default async function BuscaPage({ searchParams }: Props) {
     const like = `%${query}%`
     const prefix = `${query}%`
     results = await prisma.$queryRaw<SearchResult[]>`
-      SELECT id, title, slug, excerpt, "categoryId"
-      FROM articles
-      WHERE status = 'PUBLISHED'
+      SELECT a.id, a.title, a.slug, a.excerpt,
+             c.slug AS "categorySlug", c.name AS "categoryName"
+      FROM articles a
+      JOIN categories c ON c.id = a."categoryId"
+      WHERE a.status = 'PUBLISHED'
       AND (
-        title ILIKE ${like}
-        OR excerpt ILIKE ${like}
-        OR content ILIKE ${like}
-        OR to_tsvector('portuguese', title || ' ' || content)
+        a.title ILIKE ${like}
+        OR a.excerpt ILIKE ${like}
+        OR a.content ILIKE ${like}
+        OR to_tsvector('portuguese', a.title || ' ' || a.content)
            @@ plainto_tsquery('portuguese', ${query})
       )
       ORDER BY
         CASE
-          WHEN title ILIKE ${prefix} THEN 0
-          WHEN title ILIKE ${like} THEN 1
-          WHEN excerpt ILIKE ${like} THEN 2
+          WHEN a.title ILIKE ${prefix} THEN 0
+          WHEN a.title ILIKE ${like} THEN 1
+          WHEN a.excerpt ILIKE ${like} THEN 2
           ELSE 3
         END,
-        ts_rank(to_tsvector('portuguese', title || ' ' || content),
+        ts_rank(to_tsvector('portuguese', a.title || ' ' || a.content),
                 plainto_tsquery('portuguese', ${query})) DESC,
-        title ASC
+        a.title ASC
       LIMIT 20
     `
   }
-
-  const categoryIds = [...new Set(results.map((r) => r.categoryId))]
-  const categories =
-    categoryIds.length > 0
-      ? await prisma.category.findMany({
-          where: { id: { in: categoryIds } },
-          select: { id: true, slug: true, name: true },
-        })
-      : []
-
-  const categoryMap = new Map(categories.map((c) => [c.id, c]))
 
   return (
     <>
@@ -102,19 +94,17 @@ export default async function BuscaPage({ searchParams }: Props) {
                 <span></span>
               </div>
               {results.map((r) => {
-                const category = categoryMap.get(r.categoryId)
-                if (!category) return null
                 return (
                   <Link
                     key={r.id}
-                    href={`/ajuda/${category.slug}/${r.slug}`}
+                    href={`/ajuda/${r.categorySlug}/${r.slug}`}
                     className="tc-artList__row"
                   >
                     <div>
                       <div className="tc-artList__title">{r.title}</div>
                       {r.excerpt && <div className="tc-artList__excerpt">{r.excerpt}</div>}
                     </div>
-                    <span className="tc-artList__cell">{category.name}</span>
+                    <span className="tc-artList__cell">{r.categoryName}</span>
                     <span />
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                       <path d="m9 6 6 6-6 6" />
