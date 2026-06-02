@@ -23,24 +23,25 @@ No painel da Vercel:
 1. Acesse o projeto **`rbcont`** no team **`agenciaprocuradas-projects`**.
 2. Vá em **Settings → Environment Variables**.
 3. **Edite** (ou crie, se não existir) a variável **`DATABASE_URL`**, ambiente
-   **Production**, com este valor exato:
+   **Production**, com este valor (troque `<SENHA>` pela senha do banco):
 
    ```
-   postgresql://postgres.jiaiwdybyyrprfhczjyu:WJCxrGfK8%3FMd%40K%2A@aws-1-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+   postgresql://postgres.jiaiwdybyyrprfhczjyu:<SENHA>@aws-1-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
    ```
 
 4. **Edite** (ou crie) a variável **`DIRECT_URL`**, ambiente **Production**, com:
 
    ```
-   postgresql://postgres.jiaiwdybyyrprfhczjyu:WJCxrGfK8%3FMd%40K%2A@aws-1-sa-east-1.pooler.supabase.com:5432/postgres
+   postgresql://postgres.jiaiwdybyyrprfhczjyu:<SENHA>@aws-1-sa-east-1.pooler.supabase.com:5432/postgres
    ```
 
 5. **Salve** as duas.
 6. Vá em **Deployments**, abra o último deploy de produção, menu **⋯ →
    Redeploy** (pode deixar marcado "use existing build cache").
 
-> Observação: a senha aparece codificada (`%3F` = `?`, `%40` = `@`, `%2A` = `*`).
-> Está correto — é assim que a senha vai dentro de uma URL.
+> **Senha:** não está neste documento por segurança. Como você vai **rotacioná-la**
+> (Ação 3 abaixo), gere a senha nova no Supabase e use-a aqui já codificada para
+> URL (ex.: `?` → `%3F`, `@` → `%40`, `*` → `%2A`, `#` → `%23`).
 
 ### Como saber se funcionou
 Depois do redeploy, abra o site e navegue entre artigos. As respostas devem cair
